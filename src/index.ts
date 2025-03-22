@@ -1,7 +1,7 @@
 import { DBEngine } from "./engines/DBEngine";
 
 const engine = new DBEngine();
-console.log("Hello World test");
+console.log("Hello World test 2");
 
 const setConfig = async () => {
     await engine.setConfig({
