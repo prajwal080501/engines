@@ -32,4 +32,4 @@ export interface BaseSchema {
     command:string,
     parameters: any
     schema?: ModelRegisteSchema<any>
-    }
+}
