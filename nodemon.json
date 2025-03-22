@@ -1,0 +1,10 @@
+{
+  "exec": "ts-node -P tsconfig.json",
+  "ext": "ts",
+  "ignore": [
+    "node_modules"
+  ],
+  "watch": [
+    "src"
+  ]
+}
