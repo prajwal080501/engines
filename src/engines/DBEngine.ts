@@ -1,6 +1,6 @@
-import { BaseSchema, DBEngineConfig, ExecuteConfig } from "../../types";
+import type { BaseSchema, DBEngineConfig, ExecuteConfig } from "../../types.ts";
 import { MongoClient, Collection } from "mongodb";
-import { ModelEngine } from "./ModelEngine";
+import { ModelEngine } from "./ModelEngine.ts";
 
 export class DBEngine extends ModelEngine {
   config: DBEngineConfig;
@@ -96,6 +96,8 @@ export class DBEngine extends ModelEngine {
             return await collection.deleteOne(parameters);
         case 'deleteMany':
             return await collection.deleteMany(parameters);
+        case 'aggregate':
+          return await collection.aggregate(parameters).toArray();
 
     }
   }
