@@ -1,9 +1,10 @@
 import type { BaseSchema, DBEngineConfig, ExecuteConfig } from "../../types";
-import { MongoClient, Collection } from "mongodb";
+import { MongoClient, Collection, UUID } from "mongodb";
 import { ModelEngine } from "./ModelEngine";
 import { LoggerManager } from "../helpers/Logger";
 import { createClient } from 'redis';
 import {redisConfig} from "../../configs";
+import { generateCacheKey } from "../utils/utils";
 
 
 const cache = createClient(redisConfig);
@@ -19,6 +20,9 @@ export class DBEngine extends ModelEngine {
     this.config = {
       connectionString: "",
       databaseName: "",
+      options: {
+        maxPoolSize: 10,
+      }
     };
     this.client = new MongoClient(
       this.config.connectionString || "mongodb://localhost:27017"
@@ -26,15 +30,13 @@ export class DBEngine extends ModelEngine {
   }
 
   async setConfig(input: DBEngineConfig) {
-    console.log(input);
     this.config = input;
-    this.client = new MongoClient(this.config.connectionString);
+    this.client = new MongoClient(this.config.connectionString, this.config.options);
     
     if (!this._isConnected) {
       await this.client.connect();
       await cache.connect();
       this._isConnected = true;
-      console.log("Database and cache initialized");
       logger.log("info", "Database and cache initialized", this.config);
     }
   }
@@ -53,21 +55,20 @@ export class DBEngine extends ModelEngine {
   async execute<T extends BaseSchema>(input: ExecuteConfig) {
     try {
       logger.log("info", "Executing command", input);
+      let params = input.parameters;
       
       if (!this._isConnected) {
         throw new Error("Database and cache are not initialized. Call setConfig first.");
       }
 
-      let cacheKey = input.collection;
+      let cacheKey = generateCacheKey({collection: input.collection, query:params, database:this.config.databaseName}); // 
       const cachedResult = await cache.get(cacheKey);
-      console.log(cachedResult, 'cachedResult');
 
       if (cachedResult) {
         logger.log("info", "Cache hit", cachedResult);
         return cachedResult;
       }
 
-      console.log(input, 'ip');
       if (input.schema) {
         this.registerModel(
           input.collection,
@@ -82,37 +83,39 @@ export class DBEngine extends ModelEngine {
 
       switch (input.command) {
         case "insertOne":
-          result = await collection.insertOne(input.parameters);
+          result = await collection.insertOne(params);
           break;
         case "insertMany":
-          result = await collection.insertMany(input.parameters);
+          result = await collection.insertMany(params);
           break;
         case "find":
-          result = await collection.find(input.parameters).toArray();
+          result = await collection.find(params).toArray();
           break;
         case "findOne":
-          result = await collection.findOne(input.parameters);
+          result = await collection.findOne(params);
           break;
         case "updateOne":
           result = await collection.updateOne(
-            input.parameters.filter,
-            { $set: input.parameters.update }
+            params.filter,
+            { $set: params.update },
+            params?.options ?? {}
           );
           break;
         case "updateMany":
           result = await collection.updateMany(
-            input.parameters.filter,
-            { $set: input.parameters.update }
+            params.filter,
+            { $set: params.update },
+            params.option
           );
           break;
         case "deleteOne":
-          result = await collection.deleteOne(input.parameters);
+          result = await collection.deleteOne(params);
           break;
         case "deleteMany":
-          result = await collection.deleteMany(input.parameters);
+          result = await collection.deleteMany(params);
           break;
         case "aggregate":
-          result = await collection.aggregate(input.parameters).toArray();
+          result = await collection.aggregate(params).toArray();
           break;
         default:
           throw new Error(`Unknown command: ${input.command}`);
@@ -122,7 +125,6 @@ export class DBEngine extends ModelEngine {
         await cache.set(cacheKey, JSON.stringify(result));
       }
 
-      console.log(result, 'result');
       return result;
     } catch (error) {
       logger.logError("error", "Error while executing command", error);

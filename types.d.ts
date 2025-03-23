@@ -3,6 +3,7 @@ import { ZodSchema } from "zod";
 export interface DBEngineConfig {
     connectionString: string;
     databaseName: string;
+    options?: Object,
 }
 
 

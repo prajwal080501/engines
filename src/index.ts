@@ -10,25 +10,17 @@ const setConfig = async () => {
   console.log("Config set");
 };
 
-
 setConfig().then(() => {
-    engine
-      .execute({
-        collection: "samples",
-        command: "aggregate",
-        parameters: [
-          {
-            $match: {
-              name: "Prajwal Ladkat",
-            },
-          },
-        ],
-      })
-      .then((result) => {
-        console.log(result);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-
-})
+  engine
+    .execute({
+      collection: "samples",
+      command: "updateOne",
+      parameters: {
+        filter: { name: "Prajwal Ladkat" },
+        update: { name: "Roger" },
+      },
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
