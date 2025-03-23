@@ -1,4 +1,4 @@
-import { DBEngine } from "./engines/DBEngine.ts";
+import { DBEngine } from "./engines/DBEngine";
 
 const engine = new DBEngine();
 console.log("Hello World test 2");
@@ -12,6 +12,9 @@ const setConfig = async () => {
 };
 
 setConfig();
+
+let res = engine.getConnectionInfo();
+console.log(res);
 
 engine
   .execute({

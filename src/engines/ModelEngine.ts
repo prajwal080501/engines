@@ -1,5 +1,5 @@
 import { z, ZodSchema } from "zod";
-import type { BaseSchema, ModelRegisterSchema } from "../../types.ts";
+import type { BaseSchema, ModelRegisterSchema } from "../../types";
 
 export class ModelEngine {
   schemas: Map<
