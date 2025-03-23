@@ -1,5 +1,7 @@
 import engine from "./engines/DBEngine";
+import dotenv from "dotenv";
 
+dotenv.config();
 console.log("Hello World test 2");
 
 const setConfig = async () => {

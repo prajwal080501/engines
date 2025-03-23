@@ -2,11 +2,12 @@ import type { BaseSchema, DBEngineConfig, ExecuteConfig } from "../../types";
 import { MongoClient, Collection, UUID } from "mongodb";
 import { ModelEngine } from "./ModelEngine";
 import { LoggerManager } from "../helpers/Logger";
-import { createClient } from 'redis';
-import {redisConfig} from "../../configs";
+import { createClient } from "redis";
+import { redisConfig } from "../../configs";
 import { generateCacheKey } from "../utils/utils";
+import { AIManager } from "../managers/AIManager";
 
-
+let aiManager = new AIManager();
 const cache = createClient(redisConfig);
 const logger = new LoggerManager();
 
@@ -22,7 +23,7 @@ export class DBEngine extends ModelEngine {
       databaseName: "",
       options: {
         maxPoolSize: 10,
-      }
+      },
     };
     this.client = new MongoClient(
       this.config.connectionString || "mongodb://localhost:27017"
@@ -31,8 +32,11 @@ export class DBEngine extends ModelEngine {
 
   async setConfig(input: DBEngineConfig) {
     this.config = input;
-    this.client = new MongoClient(this.config.connectionString, this.config.options);
-    
+    this.client = new MongoClient(
+      this.config.connectionString,
+      this.config.options
+    );
+
     if (!this._isConnected) {
       await this.client.connect();
       await cache.connect();
@@ -52,16 +56,27 @@ export class DBEngine extends ModelEngine {
     return null;
   }
 
+  beforeExecute(input: ExecuteConfig) {
+    // function to update the input parameters before executing
+    return input;
+  }
+
   async execute<T extends BaseSchema>(input: ExecuteConfig) {
     try {
       logger.log("info", "Executing command", input);
       let params = input.parameters;
-      
+
       if (!this._isConnected) {
-        throw new Error("Database and cache are not initialized. Call setConfig first.");
+        throw new Error(
+          "Database and cache are not initialized. Call setConfig first."
+        );
       }
 
-      let cacheKey = generateCacheKey({collection: input.collection, query:params, database:this.config.databaseName}); // 
+      let cacheKey = generateCacheKey({
+        collection: input.collection,
+        query: params,
+        database: this.config.databaseName,
+      }); //
       const cachedResult = await cache.get(cacheKey);
 
       if (cachedResult) {
@@ -132,8 +147,6 @@ export class DBEngine extends ModelEngine {
     }
   }
 }
-
-
 
 let engine = new DBEngine();
 
