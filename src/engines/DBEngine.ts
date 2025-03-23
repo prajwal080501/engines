@@ -16,18 +16,14 @@ export class DBEngine extends ModelEngine {
   client: MongoClient;
   private _isConnected: boolean = false; // Tracks if DB & cache are connected
 
-  constructor() {
+  constructor(config: DBEngineConfig = {
+    connectionString: "mongodb://localhost:27017",
+    databaseName: "",
+    options: { maxPoolSize: 10 }
+  }) {
     super();
-    this.config = {
-      connectionString: "",
-      databaseName: "",
-      options: {
-        maxPoolSize: 10,
-      },
-    };
-    this.client = new MongoClient(
-      this.config.connectionString || "mongodb://localhost:27017"
-    );
+    this.config = config;
+    this.client = new MongoClient(this.config.connectionString, this.config.options);
   }
 
   async setConfig(input: DBEngineConfig) {
@@ -37,6 +33,10 @@ export class DBEngine extends ModelEngine {
       this.config.options
     );
 
+    await this.ensureConnected();
+  }
+
+  private async ensureConnected() {
     if (!this._isConnected) {
       await this.client.connect();
       await cache.connect();
@@ -64,13 +64,8 @@ export class DBEngine extends ModelEngine {
   async execute<T extends BaseSchema>(input: ExecuteConfig) {
     try {
       logger.log("info", "Executing command", input);
+      await this.ensureConnected();
       let params = input.parameters;
-
-      if (!this._isConnected) {
-        throw new Error(
-          "Database and cache are not initialized. Call setConfig first."
-        );
-      }
 
       let cacheKey = generateCacheKey({
         collection: input.collection,

@@ -19,9 +19,12 @@ setConfig().then(() => {
       command: "updateOne",
       parameters: {
         filter: { name: "Prajwal Ladkat" },
-        update: { name: "Roger" },
+        update: { name: "Roger Doe" },
       },
-    })
+    }).then((res) => {
+      console.log(res);
+    }
+    )
     .catch((err) => {
       console.log(err);
     });
