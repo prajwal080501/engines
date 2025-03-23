@@ -1,6 +1,5 @@
-import { DBEngine } from "./engines/DBEngine";
+import engine from "./engines/DBEngine";
 
-const engine = new DBEngine();
 console.log("Hello World test 2");
 
 const setConfig = async () => {
@@ -11,26 +10,25 @@ const setConfig = async () => {
   console.log("Config set");
 };
 
-setConfig();
 
-let res = engine.getConnectionInfo();
-console.log(res);
+setConfig().then(() => {
+    engine
+      .execute({
+        collection: "samples",
+        command: "aggregate",
+        parameters: [
+          {
+            $match: {
+              name: "Prajwal Ladkat",
+            },
+          },
+        ],
+      })
+      .then((result) => {
+        console.log(result);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
 
-engine
-  .execute({
-    collection: "samples",
-    command: "aggregate",
-    parameters: [
-      {
-        $match: {
-          name: "Prajwal Ladkat",
-        },
-      },
-    ],
-  })
-  .then((result) => {
-    console.log(result);
-  })
-  .catch((err) => {
-    console.log(err);
-  });
+})
