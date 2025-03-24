@@ -14,9 +14,7 @@ export interface BaseSchema {
     updatedAt?: Date;
   }
   
-  /**
-   * Type for ExecuteConfig, supporting dynamic parameters and commands
-   */
+  
   
   /**
    * Type for schema registration, supporting timestamps
@@ -27,6 +25,9 @@ export interface BaseSchema {
     timestamps?: boolean;
   }
 
+/**
+   * Type for ExecuteConfig, supporting dynamic parameters and commands
+   */
 
   export interface ExecuteConfig {
     collection: string,
