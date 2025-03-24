@@ -7,13 +7,11 @@ export interface DBEngineConfig {
 }
 
 
-
 export interface BaseSchema {
     _id?: string;         // MongoDB automatically assigns `_id`
     createdAt?: Date;
     updatedAt?: Date;
   }
-  
   
   
   /**
