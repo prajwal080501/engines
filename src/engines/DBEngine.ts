@@ -26,14 +26,12 @@ export class DBEngine extends ModelEngine {
     this.client = new MongoClient(this.config.connectionString, this.config.options);
   }
 
-  async setConfig(input: DBEngineConfig) {
+  setConfig(input: DBEngineConfig) {
     this.config = input;
     this.client = new MongoClient(
       this.config.connectionString,
       this.config.options
     );
-
-    await this.ensureConnected();
   }
 
   private async ensureConnected() {
