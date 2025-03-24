@@ -16,14 +16,19 @@ export class DBEngine extends ModelEngine {
   client: MongoClient;
   private _isConnected: boolean = false; // Tracks if DB & cache are connected
 
-  constructor(config: DBEngineConfig = {
-    connectionString: "mongodb://localhost:27017",
-    databaseName: "",
-    options: { maxPoolSize: 10 }
-  }) {
+  constructor(
+    config: DBEngineConfig = {
+      connectionString: "mongodb://localhost:27017",
+      databaseName: "",
+      options: { maxPoolSize: 10 },
+    }
+  ) {
     super();
     this.config = config;
-    this.client = new MongoClient(this.config.connectionString, this.config.options);
+    this.client = new MongoClient(
+      this.config.connectionString,
+      this.config.options
+    );
   }
 
   setConfig(input: DBEngineConfig) {
