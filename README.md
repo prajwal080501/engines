@@ -8,7 +8,7 @@
 
 ## Overview
 
-DataEngine is a sophisticated database abstraction layer designed to simplify database operations while providing advanced features like intelligent caching, schema validation, and automatic logging. Built with TypeScript, it offers a clean API for MongoDB operations with Redis-powered caching.
+DBEngine is a sophisticated database abstraction layer designed to simplify database operations while providing advanced features like intelligent caching, schema validation, and automatic logging. Built with TypeScript, it offers a clean API for MongoDB operations with Redis-powered caching.
 
 **⚠️ Note: This project is currently under active development.**
 
